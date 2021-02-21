@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "express": "^4.17.1",
+    "f1-telemetry-client": "^0.1.18",
+    "save": "^2.4.0"
+  }
+}
