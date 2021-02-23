@@ -6,7 +6,10 @@ var app = express();
 
 app.get('/', function (req, res) {
     console.log(gameState.participants);
-    res.send(gameState.participants);
+    console.log(gameState.session_data);
+    console.log(gameState.standings);
+    console.log(gameState.participants);
+    res.send(gameState.session_data);
 });
 
 var server = app.listen(3000, function () {

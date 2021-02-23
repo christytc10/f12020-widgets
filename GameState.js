@@ -4,16 +4,19 @@ const { PACKETS } = constants;
 class GameState {
 
     constructor() {
-        //this._standings = [];
+        this._standings = new Map();
         this._participants = new Map();
+        this._session_data = {};
+        this._car_status = new Map();
 
         this._udpclient = new F1TelemetryClient({ port: 20777, bigintEnabled: true });
         this._udpclient.start();
-        //this._udpclient.on(PACKETS.event, console.log);
-        //this._udpclient.on(PACKETS.lapData, m => this.parseLapData(this, m));
-        //this._udpclient.on(PACKETS.session, m => this.parseSessionData(this, m));
+
+        this._udpclient.on(PACKETS.lapData, m => this.parseLapData(this, m));
+        this._udpclient.on(PACKETS.session, m => this.parseSessionData(this, m));
         this._udpclient.on(PACKETS.participants, m => this.parseParticipants(this, m));
-        //this._udpclient.on(PACKETS.carStatus, m => this.parseCarStatusData(this, m));
+        this._udpclient.on(PACKETS.carStatus, m => this.parseCarStatusData(this, m));
+        this._udpclient.on(PACKETS.event, m => this.parseEventData(this, m));
         //this._udpclient.on(PACKETS.finalClassification, console.log);
         //this._udpclient.on(PACKETS.lobbyInfo, console.log);
     }
@@ -50,31 +53,85 @@ class GameState {
         this._car_status = val;
     }
 
-    parseParticipants(gamestateref, packet){
+    parseParticipants(gamestate, packet){
         var i;
         for (i = 0; i < packet.m_participants.length; i++) {
-            gamestateref.participants.set(i, packet.m_participants[i]);
+            var participant = {
+                "name": packet.m_participants[i].m_name,
+                "nationality": packet.m_participants[i].m_nationality,
+                "driverId": packet.m_participants[i].m_driverId,
+                "raceNumber": packet.m_participants[i].m_raceNumber,
+                "teamId": packet.m_participants[i].m_teamId,
+                "name": packet.m_participants[i].m_name
+            };
+            console.log(packet.m_participants[i].m_nationality);
+            gamestate.participants.set(i, participant);
         }
     }
 
-    parseLapData(gamestateref, packet){
+    parseLapData(gamestate, packet){
+        console.log("Parsing Lap data");
+        console.log(lapData);
         var i;
         for (i = 0; i < packet.m_lapData.length; i++) {
-            var lapData = packet.m_lapData[i];
-            //standings_entry = {"driver": participants[i], "lapData": lapData};
-            //gamestateref.standings[lap_data.m_carPosition] = standings_entry;
+            var lapData = {
+                "carPosition": packet.m_lapData[i].m_carPosition,
+                "penalties": packet.m_lapData[i].m_penalties,
+                "gridPosition": packet.m_lapData[i].m_gridPosition,
+                "resultStatus": packet.m_lapData[i].m_resultStatus
+            };
+            gamestate.participants.set(lapData.carPosition, lapData);
+
         }
     }
 
-    parseCarStatusData(gamestateref, packet){
+    parseCarStatusData(gamestate, packet){
         var i;
         for (i = 0; i < packet.m_carStatusData.length; i++) {
-            gamestateref._car_status[i] = packet.m_carStatusData[i];
+            var carStatus = {
+                "tyresWear": packet.m_carStatusData[i].m_tyresWear,
+                "actualTyreCompound": packet.m_carStatusData[i].m_actualTyreCompound,
+                "visualTyreCompound": packet.m_carStatusData[i].m_visualTyreCompound,
+                "tyresAgeLaps": packet.m_carStatusData[i].m_tyresAgeLaps
+            }
+            gamestate.car_status.set(i, carStatus);
         }
     }
 
-    parseSessionData(gamestateref, packet){
-        gamestateref.session_data = packet.m_sessionData;
+    parseSessionData(gamestate, packet){
+        var session_info = {
+            "weather": packet.m_weather,
+            "trackTemperature": packet.m_trackTemperature,
+            "airTemperature": packet.m_airTemperature,
+            "totalLaps": packet.m_totalLaps,
+            "sessionType": packet.m_sessionType,
+            "trackId": packet.m_trackId,
+            "safetyCarStatus": packet.m_safetyCarStatus,
+            "numWeatherForecastSamples": packet.m_numWeatherForecastSamples,
+            "weatherForecastSamples": packet.m_weatherForecastSamples
+        }
+        gamestate.session_data = session_info;
+    }
+
+    parseEventData(gamestate, packet){
+        //TODO - what to do with events?
+        console.log(packet);
+        switch (packet.m_eventStringCode){
+            case "PENA":
+                // A penalty has been issued – details in event
+                break;
+            case "RCWN":
+                // The race winner is announced
+                break;
+            case "RTMT":
+                // When a driver retires
+                break;
+            case "FTLP":
+                // When a driver achieves the fastest lap
+                break;
+            default:
+                console.log(packet.m_eventStringCode + " is unmapped");
+        }
     }
 }
 module.exports = GameState;
