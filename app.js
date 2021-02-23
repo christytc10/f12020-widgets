@@ -5,8 +5,8 @@ var gameState = new GameState();
 var app = express();
 
 app.get('/', function (req, res) {
-    console.log(gameState.standings);
-    res.send(gameState.standings);
+    console.log(gameState.participants);
+    res.send(gameState.participants);
 });
 
 var server = app.listen(3000, function () {
