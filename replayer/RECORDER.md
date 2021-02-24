@@ -1,5 +1,7 @@
-conda create --name venv python=3.9.1
+`conda create --name venv python=3.9.1`
 
-pip install f1-2020-telemetry
+`conda activate venv`
 
-f1-2020-telemetry-recorder
+`pip install f1-2020-telemetry`
+
+`f1-2020-telemetry-recorder`
