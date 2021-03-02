@@ -64,14 +64,11 @@ class GameState {
                 "teamId": packet.m_participants[i].m_teamId,
                 "name": packet.m_participants[i].m_name
             };
-            console.log(packet.m_participants[i].m_nationality);
             gamestate.participants.set(i, participant);
         }
     }
 
     parseLapData(gamestate, packet){
-        console.log("Parsing Lap data");
-        console.log(lapData);
         var i;
         for (i = 0; i < packet.m_lapData.length; i++) {
             var lapData = {
