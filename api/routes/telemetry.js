@@ -11,4 +11,9 @@ router.get('/', function(req, res, next) {
     res.send(gameState.session_data);
 });
 
+router.get('/standings', function(req, res, next) {
+    console.log(gameState.pullStandings());
+    res.send(gameState.pullStandings());
+});
+
 module.exports = router;

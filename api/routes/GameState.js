@@ -8,6 +8,7 @@ class GameState {
         this._participants = new Map();
         this._session_data = {};
         this._car_status = new Map();
+        this._lap_data = {};
 
         this._udpclient = new F1TelemetryClient({ port: 20777, bigintEnabled: true });
         this._udpclient.start();
@@ -20,6 +21,10 @@ class GameState {
         //this._udpclient.on(PACKETS.finalClassification, console.log);
         //this._udpclient.on(PACKETS.lobbyInfo, console.log);
     }
+
+    pullStandings(){
+        return [{"name":"Driver1"},{"name":"Driver2"}];
+    };
 
     get standings() {
         return this._standings;
@@ -36,6 +41,10 @@ class GameState {
     get car_status() {
         return this._car_status;
     }
+    
+    get lap_data() {
+        return this._lap_data;
+    }
 
     set standings(val){
         this._standings = val;
@@ -51,6 +60,10 @@ class GameState {
 
     set car_status(val){
         this._car_status = val;
+    }
+
+    set lap_data(val){
+        this._lap_data = val;
     }
 
     parseParticipants(gamestate, packet){
@@ -70,6 +83,7 @@ class GameState {
 
     parseLapData(gamestate, packet){
         var i;
+        var laps = [];
         for (i = 0; i < packet.m_lapData.length; i++) {
             var lapData = {
                 "carPosition": packet.m_lapData[i].m_carPosition,
@@ -77,9 +91,9 @@ class GameState {
                 "gridPosition": packet.m_lapData[i].m_gridPosition,
                 "resultStatus": packet.m_lapData[i].m_resultStatus
             };
-            gamestate.participants.set(lapData.carPosition, lapData);
-
+            laps.push(lapData);
         }
+        gamestate.lapData = laps;
     }
 
     parseCarStatusData(gamestate, packet){
