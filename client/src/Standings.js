@@ -1,45 +1,45 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-class Standings extends React.Component {
-  constructor(props) {
-    super(props);
+function Standingssss() {
+  const [standings, setStandings] = useState([]);
 
-    this.standings = []
-  }
-
-  componentDidMount() {
-    this.timer = setInterval(()=> this.getStandings(), 1000);
-  }
-  
-  componentWillUnmount() {
-    this.timer = null;
-  }
-  
-  getStandings() {
+  const addItem = event => {
+    event.preventDefault();
     fetch("http://localhost:9000/telemetry/standings")
       .then(result => result.json())
-      .then(result => this.standings =( result ));
-    console.log(this.standings);
-    /*
-    (2) [{…}, {…}]
-    0: {name: "Driver1"}
-    1: {name: "Driver2"}
-    length: 2
-    __proto__: Array(0)
-    */
-  }
+      .then(result => setStandings( result ));
+  };
 
-  render() {
-    return(
-      <div>
-        <p>STANDINGS</p>
-        <div>
-          {this.standings.map(d => <li key={d.name}>{d.name}</li>)}
-        </div>
-        
-      </div>
+  return (
+    <>
+      <h3>STANDINGS</h3>
+      <ul>
+        {standings.map(s => (
+          <li key={s.name}>{s.name}</li>
+        ))}
+      </ul>
+    </>
+  );
+}
+ 
+function Standings() {
+  const [data, setData] = useState([]);
+ 
+  useEffect(async () => {
+    const result = await axios(
+      'http://localhost:9000/telemetry/standings',
     );
-  }
+    setData(result.data);
+  }, []);
+ 
+  return (
+    <ul>
+      {data.map(driver => (
+        <li key={driver.name}>{driver.name}</li>
+      ))}
+    </ul>
+  );
 }
 
 export default Standings;
